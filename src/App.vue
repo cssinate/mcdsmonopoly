@@ -20,6 +20,7 @@
       <h1>Here are the rare pieces for McDonald's Canada Monopoly 2019</h1>
       <p>Use this application to quickly check if your Monopoly stickers are winners or not. Type in the name or number of the property, and you can see quickly if it's worth hanging onto or not.</p>
       <p>This app was created by <a href="https://twitter.com/cssinate">Paul Grant</a>. Find and contribute to this project on <a href="https://github.com/cssinate/mcdsmonopoly">Github</a>.</p>
+      <small>I collect a very small amount of anonymous usage data to see if people are actually using this tool. This is how I decide whether or not it's worth it for me to pay for the costs of running the site. On this site, I have information on how long you were here, how you got here, and whether or not you used the search field in this session (true or false).</small>
       <button @click="hideAbout()">Don't show this section again</button>
     </section>
     <a role="button" class="showAbout" @click="revealAbout()" v-if="!showAbout">About</a>
@@ -49,6 +50,7 @@ export default {
       year: 2019,
       sections: Tiles,
       search: '',
+      trackedInteraction: false,
       theme: 'light',
       showAbout: true
     }
@@ -121,6 +123,14 @@ export default {
       this.showAbout = true
       window.localStorage.removeItem('about')
       this.$nextTick(() => { window.scrollTo(0, document.body.scrollHeight) })
+    }
+  },
+  watched: {
+    search () {
+      if (!this.trackedInteraction) {
+        this.trackedInteraction = true
+        this.$root._paq.push(['trackEvent', 'Interaction', 'Search'])
+      }
     }
   }
 }
