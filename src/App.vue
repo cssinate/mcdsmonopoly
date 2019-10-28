@@ -16,6 +16,17 @@
         <p>1:{{section.prize.odds.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}}</p>
       </div>
     </section>
+    <section class="about" v-if="showAbout">
+      <h1>Here are the rare pieces for McDonald's Canada Monopoly 2019</h1>
+      <p>Use this application to quickly check if your Monopoly stickers are winners or not. Type in the name or number of the property, and you can see quickly if it's worth hanging onto or not.</p>
+      <p>This app was created by <a href="https://twitter.com/cssinate">Paul Grant</a>. Find and contribute to this project on <a href="https://github.com/cssinate/mcdsmonopoly">Github</a>.</p>
+      <button @click="hideAbout()">Don't show this section again</button>
+    </section>
+    <a role="button" class="showAbout" @click="revealAbout()" v-if="!showAbout">About</a>
+    <button class="darkModeToggle" :aria-pressed="theme" @click="toggleDark()">
+      dark theme:
+      <span aria-hidden="true">{{theme === 'dark' ? 'on' : 'off'}}</span>
+    </button>
   </div>
 </template>
 
@@ -37,13 +48,28 @@ export default {
     return {
       year: 2019,
       sections: Tiles,
-      search: ''
+      search: '',
+      theme: 'light',
+      showAbout: true
     }
   },
-  mounted () {
-    // this.sections.forEach((section, index) => {
-    // this.sections[section]['prize'] = Prizes[this.year][index]
-    // })
+  created () {
+    const theme = localStorage.getItem('theme')
+    const about = localStorage.getItem('about')
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    if (!theme) {
+      const darkModeOn = darkModeMediaQuery.matches
+      darkModeOn && this.toggleDark('dark')
+    }
+    darkModeMediaQuery.addListener(() => {
+      this.toggleDark()
+    })
+    if (theme === 'dark') {
+      this.toggleDark('dark')
+    }
+    if (about) {
+      this.showAbout = false
+    }
   },
   computed: {
     sectionList () {
@@ -74,11 +100,39 @@ export default {
         }
       })
     }
+  },
+  methods: {
+    toggleDark (setTo) {
+      if (!setTo) {
+        this.theme === 'light' ? this.theme = 'dark' : this.theme = 'light'
+        this.theme === 'dark' ? document.body.classList.add('darkMode') : document.body.classList.remove('darkMode')
+      } else if (setTo === 'dark') {
+        this.theme = 'dark'
+        document.body.classList.add('darkMode')
+      }
+
+      window.localStorage.setItem('theme', this.theme)
+    },
+    hideAbout () {
+      this.showAbout = false
+      window.localStorage.setItem('about', 'hidden')
+    },
+    revealAbout () {
+      this.showAbout = true
+      window.localStorage.removeItem('about')
+      this.$nextTick(() => { window.scrollTo(0, document.body.scrollHeight) })
+    }
   }
 }
 </script>
 
 <style lang="scss">
+  :root {
+    --bg: #ffffff;
+    --fg: #000000;
+    --link: #1460c2;
+  }
+
   #app {
     display: contents;
   }
@@ -92,8 +146,31 @@ export default {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    font-family: sans-serif;
-    background-color: white;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    background-color: #ffffff;
+    color: #000000;
+    background-color: var(--bg);
+    color: var(--fg);
+    padding-bottom: 3rem;
+  }
+
+  a {
+    color: var(--link);
+  }
+
+  button {
+    background-color: var(--bg);
+    color: var(--fg);
+    outline: solid 2px currentColor;
+    border: 0;
+
+    &::-moz-focus-inner {
+      border: 0;
+    }
+
+    &:focus {
+      outline-width: 4px;
+    }
   }
 
   .sr-only:not(:focus):not(:active) {
@@ -112,14 +189,18 @@ export default {
     top: 0;
     padding: .25em 1em;
     background-color: white;
-    background-color: var(--app-bg, white);
+    background-color: var(--bg, white);
     border-bottom: solid 2px currentColor;
+    z-index: 1;
   }
 
   .search {
     font-size: 2rem;
     padding: .5rem;
     width: 100%;
+    background-color: var(--tilebg, white);
+    color: var(--fg, black);
+    border: solid 2px currentColor;
   }
 
   .section {
@@ -127,7 +208,6 @@ export default {
     border-color: var(--color);
     border-left-width: 2ch;
     border-right-width: 2ch;
-    flex-grow: 1;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -190,18 +270,46 @@ export default {
     }
   }
 
+  .tile.rare::after {
+    content: '⭐ RARE ⭐';
+    width: 100%;
+    text-align-last: justify;
+    display: block;
+    font-size: .8em;
+  }
+
   .prize {
     padding-bottom: 1rem;
     padding-top: 1rem;
+    width: 100%;
 
     p {
       margin: 0;
+      text-align: center;
 
       &:first-child {
         font-weight: bold;
       }
     }
 
+  }
+
+  .about {
+    width: 70ch;
+    padding-left: calc(2ch + 2rem);
+  }
+
+  .darkModeToggle {
+    position: fixed;
+    bottom: .5rem;
+    right: .5rem;
+  }
+
+  .showAbout {
+    padding-left: calc(2ch + 2rem);
+    cursor: pointer;
+    width: 6rem;
+    width: min-content;
   }
 
   .brown {
@@ -244,20 +352,43 @@ export default {
     --color: hsl(0, 0%, 25%);
   }
 
+  @media (min-width: 45rem) {
+    .tiles {
+      flex-grow: 1;
+      justify-content: flex-start;
+    }
+
+    .prize p {
+      text-align: left;
+    }
+  }
+
   @media (min-width: 79rem) {
     .section {
       justify-content: space-between;
     }
 
     .prize {
-      text-align: right;
+      width: auto;
+
+      p {
+        text-align: right;
+      }
     }
   }
 
-  @media (min-width: 45rem) {
-    .tiles {
-      flex-grow: 1;
-      justify-content: flex-start;
+  body.darkMode {
+    --bg: #222222;
+    --fg: rgb(245, 245, 245);
+    --tilebg: #333333;
+    --link: #5b8ccc;
+
+    ::placeholder {
+      color: #c5c5c5;
+    }
+
+    .section {
+      filter: saturate(.8) brightness(.9);
     }
   }
 </style>

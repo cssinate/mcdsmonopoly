@@ -1,0 +1,3 @@
+# McDonald's Canada Monopoly Token Finder
+## What's the app for?
+Every year, McDonald's does their Monopoly promotion. It works for me—I'm hooked. I buy more McDonald's during the promotion than I do other times of the year. But I don't want to hang onto every sticker available. I figure, if I get a rare piece, I can find someone who will sell me their non-rare stickers that I need for a buck. But figuring out/remembering what the rare pieces are is always a pain in the butt. When you Google it, some news articles listing the rare pieces come up, but they're not sorted well, and aren't associated with the proper color. This app makes it quick and easy to search for your piece and see if it's rare or not.
