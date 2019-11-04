@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <section class="search-wrapper">
-      <input type="text" class="search" v-model="search" placeholder="Search" autofocus>
+      <label class="sr-only" for="searchInput">Search</label>
+      <input id="searchInput" type="text" class="search" v-model="search" placeholder="Search" autofocus>
     </section>
     <section v-for="(section, index) in filteredSections" :key="index" class="section" :class="[section.className, {'filtered': search}]">
       <h1 class="sr-only">{{ section.className }}</h1>
@@ -125,11 +126,11 @@ export default {
       this.$nextTick(() => { window.scrollTo(0, document.body.scrollHeight) })
     }
   },
-  watched: {
+  watch: {
     search () {
-      if (!this.trackedInteraction) {
+      if (this.trackedInteraction === false) {
         this.trackedInteraction = true
-        this.$root._paq.push(['trackEvent', 'Interaction', 'Search'])
+        window._paq.push(['trackEvent', 'Interaction', 'Search'])
       }
     }
   }
@@ -137,6 +138,10 @@ export default {
 </script>
 
 <style lang="scss">
+  @function tn($area) {
+    @return $area .3s ease-in-out;
+  }
+
   :root {
     --bg: #ffffff;
     --fg: #000000;
@@ -162,10 +167,13 @@ export default {
     background-color: var(--bg);
     color: var(--fg);
     padding-bottom: 3rem;
+    transition: tn(background-color), tn(color);
   }
 
   a {
     color: var(--link);
+    transition: tn(color);
+
   }
 
   button {
@@ -173,6 +181,7 @@ export default {
     color: var(--fg);
     outline: solid 2px currentColor;
     border: 0;
+    transition: tn(background-color), tn(color);
 
     &::-moz-focus-inner {
       border: 0;
@@ -202,6 +211,7 @@ export default {
     background-color: var(--bg, white);
     border-bottom: solid 2px currentColor;
     z-index: 1;
+    transition: tn(background-color);
   }
 
   .search {
@@ -211,6 +221,11 @@ export default {
     background-color: var(--tilebg, white);
     color: var(--fg, black);
     border: solid 2px currentColor;
+    transition: tn(background-color), tn(color);
+
+    &:focus {
+      outline: 2px solid currentColor;
+    }
   }
 
   .section {
@@ -224,6 +239,7 @@ export default {
     padding-left: 2rem;
     padding-right: 2rem;
     justify-content: center;
+    transition: tn(border-color);
 
     &.filtered {
       flex-grow: 0;
@@ -250,6 +266,7 @@ export default {
     margin-top: 1rem;
     order: 2;
     margin: .5rem;
+    transition: tn(background-color);
 
     h2 {
       font-size: 1em;
@@ -305,8 +322,13 @@ export default {
   }
 
   .about {
-    width: 70ch;
+    max-width: 70ch;
+    width: calc(100vw - 4ch - 4rem);
     padding-left: calc(2ch + 2rem);
+
+    button {
+      margin-top: 1rem;
+    }
   }
 
   .darkModeToggle {
@@ -401,4 +423,5 @@ export default {
       filter: saturate(.8) brightness(.9);
     }
   }
+
 </style>
