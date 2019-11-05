@@ -129,8 +129,15 @@ export default {
   watch: {
     search () {
       if (this.trackedInteraction === false) {
+        const Http = new XMLHttpRequest()
+        if (!process.env.VUE_APP_DEVELOPMENT) {
+          Http.open('GET', 'https://count.mcdsmonopoly.ca')
+          Http.send()
+        } else {
+          Http.open('GET', 'http://count.mcdsmonopoly.ca/dev')
+          Http.send()
+        }
         this.trackedInteraction = true
-        window._paq.push(['trackEvent', 'Interaction', 'Search'])
       }
     }
   }
